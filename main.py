@@ -23,11 +23,13 @@ from keboola import docker
 ### Environment setup
 abspath = os.path.abspath(__file__)
 script_path = os.path.dirname(abspath)
+logging.debug(script_path)
 os.chdir(script_path)
+logging.debug(os.listdir())
 
 ### Logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(levelname)-8s : [line:%(lineno)s] %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S")
 """

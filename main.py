@@ -81,8 +81,6 @@ def create_manifest(file_name, destination):
         logging.warn("Could not produce %s output file manifest." % file_name)
         logging.warn(e)
 
-
-
 def main():
     """
     Main execution script.

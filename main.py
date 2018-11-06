@@ -60,12 +60,45 @@ DEFAULT_FILE_INPUT = "/data/in/tables/"
 DEFAULT_FILE_DESTINATION = "/data/out/tables/"
 
 
+def create_manifest(file_name, destination):
+    """
+    Function for manifest creation.
+    """
+
+    file = '/data/out/tables/' + str(file_name) + '.manifest'
+
+    manifest_template = {
+                         "destination": str(destination)
+                        }
+
+    manifest = manifest_template
+
+    try:
+        with open(file, 'w') as file_out:
+            json.dump(manifest, file_out)
+            logging.info("Output %s manifest file produced." % file_name)
+    except Exception as e:
+        logging.warn("Could not produce %s output file manifest." % file_name)
+        logging.warn(e)
+
+
+
 def main():
     """
     Main execution script.
     """
+    for table in in_tables:
+        data = pd.read_csv(table['full_path'], dtype=str)
 
-    return
+        for value in data[by_column].unique():
+            logging.debug("Current value for column %s is: %s" % (by_column, value))
+            sub = data[data[by_column].isin([value])]
+
+            filename = str(by_column) + '_' + value
+            destination = "in.c-processor-split.%s" % filename
+            
+            sub.to_csv('/data/out/tables/%s.csv' % filename, index=False)
+            create_manifest(filename, destination)
 
 
 if __name__ == "__main__":

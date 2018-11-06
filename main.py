@@ -44,7 +44,7 @@ logger.addHandler(logging_gelf_handler)
 logger.removeHandler(logger.handlers[0])
 """
 
-logging.debug("Current version is 0.1.5.")
+logging.debug("Current version is 0.1.6.")
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')

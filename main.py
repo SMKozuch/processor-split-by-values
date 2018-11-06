@@ -23,9 +23,7 @@ from keboola import docker
 ### Environment setup
 abspath = os.path.abspath(__file__)
 script_path = os.path.dirname(abspath)
-logging.debug(script_path)
 os.chdir(script_path)
-logging.debug(os.listdir())
 
 ### Logging
 logging.basicConfig(
@@ -49,6 +47,9 @@ logger.removeHandler(logger.handlers[0])
 cfg = docker.Config('/data/')
 params = cfg.get_parameters()
 by_column = params['by_column']
+logging.debug("Values will be split by column %s." % by_column)
+logging.debug(script_path)
+logging.debug(os.listdir())
 
 ### Get proper list of tables
 cfg = docker.Config('/data/')

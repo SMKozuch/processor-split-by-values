@@ -50,6 +50,7 @@ by_column = params['by_column']
 logging.debug("Values will be split by column %s." % by_column)
 logging.debug(script_path)
 logging.debug(os.listdir())
+logging.debug(os.listdir('/data/'))
 
 ### Get proper list of tables
 cfg = docker.Config('/data/')
@@ -61,28 +62,6 @@ logging.info("OUT tables mapped: "+str(out_tables))
 ### destination to fetch and output files
 DEFAULT_FILE_INPUT = "/data/in/tables/"
 DEFAULT_FILE_DESTINATION = "/data/out/tables/"
-
-
-def create_manifest(file_name, destination):
-    """
-    Function for manifest creation.
-    """
-
-    file = '/data/out/tables/' + str(file_name) + '.manifest'
-
-    manifest_template = {
-                         "destination": str(destination)
-                        }
-
-    manifest = manifest_template
-
-    try:
-        with open(file, 'w') as file_out:
-            json.dump(manifest, file_out)
-            logging.info("Output %s manifest file produced." % file_name)
-    except Exception as e:
-        logging.warn("Could not produce %s output file manifest." % file_name)
-        logging.warn(e)
 
 def main():
     """
@@ -96,10 +75,8 @@ def main():
             sub = data[data[by_column].isin([value])]
 
             filename = str(by_column) + '_' + value
-            destination = "in.c-processor-split.%s" % filename
             
             sub.to_csv('/data/out/tables/%s.csv' % filename, index=False)
-            create_manifest(filename, destination)
 
 
 if __name__ == "__main__":

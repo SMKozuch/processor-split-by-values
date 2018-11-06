@@ -16,6 +16,7 @@ import csv
 import json
 import glob
 import pandas as pd
+import shutil
 import logging_gelf.formatters
 import logging_gelf.handlers
 from keboola import docker
@@ -44,7 +45,7 @@ logger.addHandler(logging_gelf_handler)
 logger.removeHandler(logger.handlers[0])
 """
 
-logging.debug("Current version is 0.1.6.")
+logging.debug("Current version is 0.1.7.")
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')
@@ -66,28 +67,36 @@ logging.info("OUT tables mapped: "+str(out_tables))
 DEFAULT_FILE_INPUT = "/data/in/tables/"
 DEFAULT_FILE_DESTINATION = "/data/out/tables/"
 
-result = [i for i in glob.glob('/data/in/tables/*.{}'.format('csv'))]
+os.chdir('/data/in/tables/')
+result = [i for i in glob.glob('*.{}'.format('csv'))]
 logging.info("res:%s" % str(result))
+
+def copy_manifest(in_file, out_file):
+    in_path = '/data/in/tables/%s.manifest' % in_file
+    out_path = '/data/out/tables/%s.manifest' % out_file
+
+    shutil.copyfile(in_path, out_path)
 
 def main():
     """
     Main execution script.
     """
     for table in result:
-        data = pd.read_csv(table, dtype=str)
+        data = pd.read_csv("/data/in/tables/%s" % table, dtype=str)
 
         for value in data[by_column].unique():
             logging.debug("Current value for column %s is: %s" % (by_column, value))
             sub = data[data[by_column].isin([value])]
 
-            filename = str(by_column) + '_' + value
+            filename = str(by_column) + '_' + str(value) + '.csv'
             
-            sub.to_csv('/data/out/tables/%s.csv' % filename, index=False)
+            sub.to_csv('/data/out/tables/%s' % filename, index=False)
+            copy_manifest(table, filename)
             logging.info("File %s was written." % filename)
 
 
 if __name__ == "__main__":
 
     main()
-
+    logging.debug(os.listdir('/data/out/tables/'))
     logging.info("Done.")

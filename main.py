@@ -50,7 +50,7 @@ by_column = params['by_column']
 logging.debug("Values will be split by column %s." % by_column)
 logging.debug(script_path)
 logging.debug(os.listdir())
-logging.debug(os.listdir('/data/'))
+logging.debug(os.listdir('/data/in/tables/'))
 
 ### Get proper list of tables
 cfg = docker.Config('/data/')

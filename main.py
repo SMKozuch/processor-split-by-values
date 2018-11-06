@@ -14,6 +14,7 @@ import os
 import logging
 import csv
 import json
+import glob
 import pandas as pd
 import logging_gelf.formatters
 import logging_gelf.handlers
@@ -43,6 +44,8 @@ logger.addHandler(logging_gelf_handler)
 logger.removeHandler(logger.handlers[0])
 """
 
+logging.debug("Current version is 0.1.5.")
+
 ### Access the supplied rules
 cfg = docker.Config('/data/')
 params = cfg.get_parameters()
@@ -63,12 +66,15 @@ logging.info("OUT tables mapped: "+str(out_tables))
 DEFAULT_FILE_INPUT = "/data/in/tables/"
 DEFAULT_FILE_DESTINATION = "/data/out/tables/"
 
+result = [i for i in glob.glob('/data/in/tables/*.{}'.format('csv'))]
+logging.info("res:%s" % str(result))
+
 def main():
     """
     Main execution script.
     """
-    for table in in_tables:
-        data = pd.read_csv(table['full_path'], dtype=str)
+    for table in result:
+        data = pd.read_csv(table, dtype=str)
 
         for value in data[by_column].unique():
             logging.debug("Current value for column %s is: %s" % (by_column, value))
@@ -77,6 +83,7 @@ def main():
             filename = str(by_column) + '_' + value
             
             sub.to_csv('/data/out/tables/%s.csv' % filename, index=False)
+            logging.info("File %s was written." % filename)
 
 
 if __name__ == "__main__":

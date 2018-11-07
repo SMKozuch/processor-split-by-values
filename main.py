@@ -29,10 +29,10 @@ os.chdir(script_path)
 
 ### Logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)-8s : [line:%(lineno)s] %(message)s',
     datefmt="%Y-%m-%d %H:%M:%S")
-"""
+
 logger = logging.getLogger()
 logging_gelf_handler = logging_gelf.handlers.GELFTCPSocketHandler(
     host=os.getenv('KBC_LOGGER_ADDR'),
@@ -43,9 +43,9 @@ logger.addHandler(logging_gelf_handler)
 
 # removes the initial stdout logging
 logger.removeHandler(logger.handlers[0])
-"""
 
-logging.debug("Current version is 0.1.9.")
+
+logging.debug("Current version is 0.1.10.")
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')
@@ -82,6 +82,10 @@ def main():
 
     for name, table in zip(in_tables_names, in_tables):
         data = pd.read_csv("/data/in/tables/%s" % table, dtype=str)
+
+        if by_column not in list(data):
+            logging.error("Column %s is not in the data" % by_column)
+            sys.exit(1)
 
         for value in data[by_column].unique():
             logging.debug("Current value for column %s is: %s" % (by_column, value))

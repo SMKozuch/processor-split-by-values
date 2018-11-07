@@ -6,12 +6,12 @@ Processor for KBC, that allows users to process files and split them based on un
 
 ```
 {
-    "definition": {
-      "component": "kozuch.processor-split-by-values"
-    },
-    "parameters": {
-      "by_column": "col12"
-    }
+  "definition": {
+    "component": "kozuch.processor-split-by-values"
+  },
+  "parameters": {
+    "by_column": "status"
+  }
 }
 ```
 

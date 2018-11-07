@@ -12,7 +12,7 @@ Processor for KBC, that allows users to process files and split them based on un
     "parameters": {
       "by_column": "col12"
     }
-  }
+}
 ```
 
 In the above config, input file will be split based on unique values in `col12`.

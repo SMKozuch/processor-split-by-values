@@ -45,31 +45,27 @@ logger.addHandler(logging_gelf_handler)
 logger.removeHandler(logger.handlers[0])
 """
 
-logging.debug("Current version is 0.1.7.")
+logging.debug("Current version is 0.1.8.")
 
 ### Access the supplied rules
 cfg = docker.Config('/data/')
 params = cfg.get_parameters()
 by_column = params['by_column']
 logging.debug("Values will be split by column %s." % by_column)
-logging.debug(script_path)
-logging.debug(os.listdir())
-logging.debug(os.listdir('/data/in/tables/'))
 
 ### Get proper list of tables
-cfg = docker.Config('/data/')
-in_tables = cfg.get_input_tables()
-out_tables = cfg.get_expected_output_tables()
+os.chdir('/data/in/tables/')
+in_tables = [i for i in glob.glob('*.{}'.format('csv'))]
+
+os.chdir('/data/out/tables/')
+out_tables = [i for i in glob.glob('*.{}'.format('csv'))]
+
 logging.info("IN tables mapped: "+str(in_tables))
 logging.info("OUT tables mapped: "+str(out_tables))
 
 ### destination to fetch and output files
 DEFAULT_FILE_INPUT = "/data/in/tables/"
 DEFAULT_FILE_DESTINATION = "/data/out/tables/"
-
-os.chdir('/data/in/tables/')
-result = [i for i in glob.glob('*.{}'.format('csv'))]
-logging.info("res:%s" % str(result))
 
 def copy_manifest(in_file, out_file):
     in_path = '/data/in/tables/%s.manifest' % in_file
@@ -81,22 +77,25 @@ def main():
     """
     Main execution script.
     """
-    for table in result:
+
+    in_tables_names = [x[:-4] for x in in_tables]
+
+    for name, table in zip(in_tables_names, in_tables):
         data = pd.read_csv("/data/in/tables/%s" % table, dtype=str)
 
         for value in data[by_column].unique():
             logging.debug("Current value for column %s is: %s" % (by_column, value))
             sub = data[data[by_column].isin([value])]
 
-            filename = str(by_column) + '_' + str(value) + '.csv'
+            filename = str(name) + '_' + str(by_column) + '--' + str(value) + '.csv'
             
             sub.to_csv('/data/out/tables/%s' % filename, index=False)
-            copy_manifest(table, filename)
+            #copy_manifest(table, filename)
             logging.info("File %s was written." % filename)
 
 
 if __name__ == "__main__":
 
     main()
-    logging.debug(os.listdir('/data/out/tables/'))
+    logging.debug("The output tables are: %s" % str(os.listdir('/data/out/tables/')))
     logging.info("Done.")
